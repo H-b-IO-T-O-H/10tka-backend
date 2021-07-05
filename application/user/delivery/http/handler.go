@@ -76,6 +76,16 @@ func (u *UserHandler) LoginHandler(ctx *gin.Context) {
 	u.Login(ctx, newUser)
 }
 
+// Login
+// @Summary Login
+// @Description get user by username and password and returns userinfo with cookies
+// @ID get-string-by-int
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.UserLogin
+// @Failure 404
+// @Failure 500
+// @Router /users/login [post]
 func (u *UserHandler) Login(ctx *gin.Context, newUser models.UserLogin) {
 	buf, err := u.UserUseCase.Login(newUser)
 	if err != nil {

@@ -10,6 +10,14 @@ var listenPort = flag.String("port", "8080", "Configure server port: --port='808
 var serverName = flag.String("name", "backend", "Configure server name: --name='backend'")
 var needLog = flag.Bool("log", false, "Enable IO logging")
 
+// @title 10tka API
+// @version 1.0
+// @description This is a backend server.
+
+// @host localhost:8080
+// @BasePath /api/v1
+// @query.collection.format multi
+
 func main() {
 	var config api.Config
 	_ = yamlConfig.LoadConfig(&config, "configs/config.yaml", nil)

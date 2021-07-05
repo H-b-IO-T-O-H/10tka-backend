@@ -21,6 +21,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -30,6 +32,9 @@ import (
 	"syscall"
 	"time"
 )
+
+// gin-swagger middleware
+// swagger embed files
 
 type DBConfig struct {
 	Host     string `yaml:"host"`
@@ -106,7 +111,6 @@ func NewApp(config Config) *App {
 	if err != nil {
 		log.Error.Fatal("connection to postgres db failed...")
 	}
-	r.GET("/metrics", func(c *gin.Context) { promhttp.Handler().ServeHTTP(c.Writer, c.Request) })
 	r.Use(common.RequestLogger(log.Info, config.NeedLog))
 	r.Use(common.ErrorLogger(log.Error))
 	//r.Use(common.ErrorMiddleware())
@@ -144,7 +148,9 @@ func NewApp(config Config) *App {
 
 	api := r.Group("/api/v1")
 
-	r.GET("/api/v1/kill", kill(fmt.Sprintf("%s on port %s killed!", config.ServerName, config.Listen)))
+	//r.GET("/api/v1/kill", kill(fmt.Sprintf("%s on port %s killed!", config.ServerName, config.Listen)))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.GET("/metrics", func(c *gin.Context) { promhttp.Handler().ServeHTTP(c.Writer, c.Request) })
 	r.GET("/api/v1/health", healthCheck())
 
 	UserRep := UserRepository.NewPgRepository(db)
