@@ -47,7 +47,7 @@ create unlogged table Professors
 	user_id 		uuid foreign key references users(user_id) not null,
 	seniority 		int2, 			/*Стаж, мес.*/
 	academic_degree varchar(256), 	/*Учёная степень*/
-	rank 			varchar(32), 	/*Звание*/
+	prof_rank 			varchar(32), 	/*Звание*/
 	contest_date 	date, 			/*Дата конкурса*/
 	is_combining 	bool, 			/*Совмещение*/
 	shared_hours 	int2, 			/*Общие часы*/
