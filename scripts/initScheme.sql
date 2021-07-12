@@ -16,7 +16,7 @@ drop table if exists Weeks cascade;
 drop table if exists Days cascade;
 drop table if exists Lessons cascade;
 
-drop type if exists user_roles;
+drop type if exists users_roles;
 drop type if exists disp_types;
 drop type if exists week_types;
 drop type if exists lessons_types;
@@ -32,24 +32,24 @@ create unlogged table Users
 	user_id 		uuid 	default uuid_generate_v4() 	primary key not null,
 	role 			users_roles not null,
 	email 			citext,
-	password_hash 		bytea,
+	password_hash 	bytea,
 	name 			varchar(128) not null,
 	surname 		varchar(128) not null,
 	patronymic 		varchar(128) not null,
 	phone 			varchar(18),
 	birth_date 		date,
 	about 			text
-)
+);
 
 create unlogged table Groups
 (
-	group_nmb 		int2 primary key not null,
+	group_nmb 		    int2 primary key not null,
 	group_elder_id 		uuid references Users(user_id) not null, 	/*Староста*/
-	timetable_id 		uuid not null,					/*Расписание*/
+	timetable_id 		uuid not null,					            /*Расписание*/
 	group_curator_id 	uuid references Users(user_id) not null, 	/*Куратор*/
-	semester 		int2,
+	semester 		    int2,
 	students_cnt 		int2
-)
+);
 
 create unlogged table Students
 (
@@ -59,11 +59,11 @@ create unlogged table Students
 	admission_date 	date not null,
 	is_graduated 	bool,
 	in_academ 	bool
-)
+);
 
 create unlogged table Professors
 (
-	user_id 	uuid foreign key references Users(user_id) not null,
+	user_id 	uuid references Users(user_id) not null,
 	seniority 	int2 not null, 		/*Стаж, мес.*/
 	academic_degree varchar(256), 		/*Учёная степень*/
 	prof_rank 	varchar(32), 		/*Звание*/
@@ -72,16 +72,14 @@ create unlogged table Professors
 	shared_hours 	int2, 			/*Общие часы*/
 	work_rate 	int4, 			/*Ставка в руб.*/
 	work_time 	varchar(32), 		/*Время работы на кафедре*/
-	disciplines 	varchar(128)[],
-	foreign key (each element of disciplines) references Disciplines(disc_name)
-)
+	disciplines 	varchar(128)[]
+);
 
 create unlogged table Competenties
 (
 	competention 	varchar(64) primary key not null,
-	users_ids 	uuid[],
-	foreign key (each element of users_ids) references Users(user_id)
-)
+	users_ids 	uuid[]
+);
 
 create unlogged table DisciplinesMaterials
 (
@@ -90,7 +88,7 @@ create unlogged table DisciplinesMaterials
 	mat_description text,
 	mat_filename 	varchar(128),
 	mat_cnt 	int2
-)
+);
 
 create unlogged table Disciplines
 (
@@ -100,14 +98,14 @@ create unlogged table Disciplines
 	is_secret	bool,
 	disp_type	disp_types not null,
 	competentions	varchar(64)[]
-)
+);
 
 create unlogged table Organizations
 (
 	org_name 	varchar(64) primary key not null,
 	org_curator_id 	uuid references Users(user_id) not null,
 	department 	varchar(16) not null
-)
+);
 
 create unlogged table Audiences
 (
@@ -117,7 +115,7 @@ create unlogged table Audiences
 	capacity 		int2,
 	aud_employment 		varchar(128),
 	about 			text
-)
+);
 
 create unlogged table AudiencesMaterials
 (
@@ -126,15 +124,14 @@ create unlogged table AudiencesMaterials
 	responsible_id 	uuid references Users(user_id) not null,
 	mat_description text,
 	mat_serial_nmb 	varchar(128)
-)
+);
 
 create unlogged table Timetables
 (
 	group_nmb 	int2 references Groups(group_nmb) not null,
 	semester 	int2 not null,
-	weeks_nmbs 	int2(18)[],
-	foreign key (each element of weeks_nmbs) references Weeks(week_nmb)
-)
+	weeks_nmbs 	int2[18]
+);
 
 create unlogged table Weeks
 (
@@ -147,7 +144,7 @@ create unlogged table Weeks
 	friday 		varchar(4) references Days(day_code) not null,
 	saturday 	varchar(4) references Days(day_code) not null,
 	sunday 		varchar(4) references Days(day_code) not null
-)
+);
 
 create unlogged table Days
 (
@@ -160,7 +157,7 @@ create unlogged table Days
 	l6_code varchar(6) 	references Lessons(lesson_code) not null,
 	l7_code varchar(6) 	references Lessons(lesson_code) not null,
 	l8_code varchar(6) 	references Lessons(lesson_code) not null
-)
+);
 
 create unlogged table Lessons
 (
@@ -168,5 +165,5 @@ create unlogged table Lessons
 	disc_name 	varchar(128) references Disciplines(disc_name) not null,
 	aud_name 	varchar(16) references Audiences(aud_name) not null,
 	lesson_type 	lessons_types not null
-)
+);
 
