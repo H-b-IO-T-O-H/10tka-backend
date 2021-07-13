@@ -130,12 +130,12 @@ func NewApp(config Config) *App {
 	store.Options(sessions.Options{
 		//Domain: "localhost", // for postman
 		Domain:   "10-tka.ru",
-		MaxAge:   int((2 * 24 * time.Hour).Seconds()),
-		Secure:   false,
+		MaxAge:   common.CookiesDuration,
+		Secure:   true,
 		HttpOnly: true,
 		Path:     "/",
-		SameSite: http.SameSiteNoneMode,
-		//SameSite: http.SameSiteStrictMode, // prevent csrf attack
+		//SameSite: http.SameSiteNoneMode,
+		SameSite: http.SameSiteStrictMode, // prevent csrf attack
 	})
 	govalidator.SetFieldsRequiredByDefault(false)
 
