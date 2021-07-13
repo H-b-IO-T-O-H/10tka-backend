@@ -95,7 +95,7 @@ func (u *UserHandler) Login(ctx *gin.Context, newUser models.UserLogin) {
 	session := u.SessionBuilder.Build(ctx)
 	if !newUser.ChekBox {
 		session.Options(sessions.Options{Domain: "10-tka.ru",
-			MaxAge:   2 * 24 * 3600,
+			MaxAge:   common.CookiesDuration,
 			Secure:   true, // false for postman
 			HttpOnly: true,
 			Path:     "/",
