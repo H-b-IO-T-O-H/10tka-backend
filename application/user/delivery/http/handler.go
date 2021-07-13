@@ -48,18 +48,18 @@ func (u *UserHandler) routes(router *gin.RouterGroup, AuthRequired gin.HandlerFu
 	router.POST("/login", u.LoginHandler)
 	router.POST("/", u.CreateUserHandler)
 	router.PUT("/", u.UpdateUserHandler)
-	router.GET("/students", u.GetStudents)
-	router.GET("/professors", u.GetProfessors)
 	router.Use(AuthRequired)
 	{
 		router.GET("/me", u.GetCurrentUser)
 		router.POST("/logout", u.LogoutHandler)
-		router.Use(isAdminOrMethodist)
-		{
-
-			//router.GET("/students", u.GetStudents)
-			//router.GET("/professors", u.GetProfessors)
-		}
+		router.GET("/students", u.GetStudents)
+		router.GET("/professors", u.GetProfessors)
+		//router.Use(isAdminOrMethodist)
+		//{
+		//
+		//	router.GET("/students", u.GetStudents)
+		//	router.GET("/professors", u.GetProfessors)
+		//}
 	}
 }
 
@@ -82,9 +82,9 @@ func (u *UserHandler) LoginHandler(ctx *gin.Context) {
 // @ID get-string-by-int
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} models.UserLogin
-// @Failure 404
-// @Failure 500
+// @Success 200 {object} Resp
+// @Failure 404 {object} common.Err
+// @Failure 500 {object} common.Err
 // @Router /users/login [post]
 func (u *UserHandler) Login(ctx *gin.Context, newUser models.UserLogin) {
 	buf, err := u.UserUseCase.Login(newUser)
@@ -94,9 +94,9 @@ func (u *UserHandler) Login(ctx *gin.Context, newUser models.UserLogin) {
 	}
 	session := u.SessionBuilder.Build(ctx)
 	if !newUser.ChekBox {
-		session.Options(sessions.Options{Domain: "10-tka.pp.ua", // for postman
-			MaxAge:   2 * 3600,
-			Secure:   false,
+		session.Options(sessions.Options{Domain: "10-tka.ru",
+			MaxAge:   2 * 24 * 3600,
+			Secure:   true, // false for postman
 			HttpOnly: true,
 			Path:     "/",
 			//SameSite: http.SameSiteNoneMode
@@ -113,6 +113,14 @@ func (u *UserHandler) Login(ctx *gin.Context, newUser models.UserLogin) {
 	ctx.JSON(http.StatusOK, Resp{User: buf})
 }
 
+// LogoutHandler Logout
+// @Summary Logout
+// @Description clear user's session
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} nil
+// @Failure 500 {object} common.Err
+// @Router /users/logout [post]
 func (u *UserHandler) LogoutHandler(ctx *gin.Context) {
 	session := u.SessionBuilder.Build(ctx)
 	session.Clear()
