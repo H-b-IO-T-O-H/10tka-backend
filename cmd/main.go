@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	api "github.com/H-b-IO-T-O-H/kts-backend/application"
+	_ "github.com/H-b-IO-T-O-H/kts-backend/docs"
 	yamlConfig "github.com/rowdyroad/go-yaml-config"
+
 )
 
 var listenPort = flag.String("port", "8080", "Configure server port: --port='8080'")
@@ -20,6 +22,7 @@ var needLog = flag.Bool("log", false, "Enable IO logging")
 
 func main() {
 	var config api.Config
+
 	_ = yamlConfig.LoadConfig(&config, "configs/config.yaml", nil)
 	flag.Parse()
 	config.Listen = ":" + *listenPort

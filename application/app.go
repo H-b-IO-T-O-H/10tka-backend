@@ -14,6 +14,7 @@ import (
 	UserHandler "github.com/H-b-IO-T-O-H/kts-backend/application/user/delivery/http"
 	UserRepository "github.com/H-b-IO-T-O-H/kts-backend/application/user/repository"
 	UserUseCase "github.com/H-b-IO-T-O-H/kts-backend/application/user/usecase"
+	_ "github.com/H-b-IO-T-O-H/kts-backend/docs"
 	ReqLogger "github.com/apsdehal/go-logger"
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-contrib/sessions"
@@ -32,9 +33,6 @@ import (
 	"syscall"
 	"time"
 )
-
-// gin-swagger middleware
-// swagger embed files
 
 type DBConfig struct {
 	Host     string `yaml:"host"`
@@ -113,6 +111,7 @@ func NewApp(config Config) *App {
 	}
 	r.Use(common.RequestLogger(log.Info, config.NeedLog))
 	r.Use(common.ErrorLogger(log.Error))
+
 	//r.Use(common.ErrorMiddleware())
 	//r.Use(common.Kill())
 	r.Use(common.Recovery())
@@ -121,8 +120,6 @@ func NewApp(config Config) *App {
 	r.NoRoute(func(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNotFound)
 	})
-
-
 
 	store, err := redis.NewStore(10, "tcp", config.Redis, "", []byte("secret"))
 	if err != nil {
