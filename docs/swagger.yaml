@@ -1,12 +1,37 @@
 basePath: /api/v1
 definitions:
-  models.UserLogin:
+  common.Err:
+    type: object
+  http.Resp:
     properties:
-      checkbox:
-        type: boolean
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+  models.User:
+    properties:
+      about:
+        type: string
       email:
         type: string
-      password:
+      id:
+        type: string
+      name:
+        type: string
+      patronymic:
+        type: string
+      phone:
+        type: string
+      prof_disciplines:
+        items:
+          type: string
+        type: array
+      prof_disciplines_str:
+        type: string
+      role:
+        type: string
+      student_group:
+        type: string
+      surname:
         type: string
     type: object
 host: localhost:8080
@@ -28,10 +53,29 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserLogin'
+            $ref: '#/definitions/http.Resp'
         "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.Err'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Err'
+      summary: Login
+  /users/logout:
+    post:
+      consumes:
+      - application/json
+      description: clear user's session
+      produces:
+      - application/json
+      responses:
+        "200":
           description: ""
         "500":
-          description: ""
-      summary: Login
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Err'
+      summary: Logout
 swagger: "2.0"

@@ -118,7 +118,7 @@ func (u *UserHandler) Login(ctx *gin.Context, newUser models.UserLogin) {
 // @Description clear user's session
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} nil
+// @Success 200
 // @Failure 500 {object} common.Err
 // @Router /users/logout [post]
 func (u *UserHandler) LogoutHandler(ctx *gin.Context) {

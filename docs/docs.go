@@ -39,30 +39,97 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UserLogin"
+                            "$ref": "#/definitions/http.Resp"
                         }
                     },
                     "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/common.Err"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.Err"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/logout": {
+            "post": {
+                "description": "clear user's session",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Logout",
+                "responses": {
+                    "200": {
                         "description": ""
                     },
                     "500": {
-                        "description": ""
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.Err"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
-        "models.UserLogin": {
+        "common.Err": {
+            "type": "object"
+        },
+        "http.Resp": {
             "type": "object",
             "properties": {
-                "checkbox": {
-                    "type": "boolean"
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "about": {
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"
                 },
-                "password": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "patronymic": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "prof_disciplines": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "prof_disciplines_str": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "student_group": {
+                    "type": "string"
+                },
+                "surname": {
                     "type": "string"
                 }
             }
