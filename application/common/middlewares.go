@@ -94,7 +94,7 @@ func RequestLogger(log *logger.Logger, needLog bool) gin.HandlerFunc {
 		defer tm.ObserveDuration()
 
 		//ellipsis(blw.body.String(), ellipsisLength))
-		if needLog {
+		if needLog && c.Request.RequestURI != "/metrics" {
 			startTime := time.Now()
 			var buf bytes.Buffer
 			tee := io.TeeReader(c.Request.Body, &buf)
