@@ -5,7 +5,6 @@ import (
 	"github.com/H-b-IO-T-O-H/kts-backend/application/common"
 	"github.com/H-b-IO-T-O-H/kts-backend/application/common/models"
 	"github.com/H-b-IO-T-O-H/kts-backend/application/user"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
@@ -28,6 +27,8 @@ func (p *pgStorage) Login(user models.UserLogin) (*models.User, common.Err) {
 	//if err != nil {
 	//	if err == gorm.ErrRecordNotFound {
 	//		return nil, common.RespErr{Message: common.AuthErr, Status: http.StatusNotFound}
+	//
+	//
 	//	}
 	//	return nil, common.RespErr{Message: err.Error(), Status: http.StatusInternalServerError}
 	//}
@@ -47,21 +48,20 @@ func (p *pgStorage) Login(user models.UserLogin) (*models.User, common.Err) {
 }
 
 func (p *pgStorage) CreateUser(newUser models.User) common.Err {
-	//tx := p.db.Begin()
-	//defer func() {
-	//	if r := recover(); r != nil {
-	//		tx.Rollback()
-	//	}
-	//}()
-	//
-	//if err := tx.Error; err != nil {
-	//	return common.RespErr{Message: err.Error(), Status: http.StatusInternalServerError}
-	//}
-	//
-	//newUser.DisciplinesOrm = "{}"
-	//if newUser.About == "" {
-	//	newUser.About = "-"
-	//}
+	tx := p.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return common.RespErr{Message: err.Error(), Status: http.StatusInternalServerError}
+	}
+
+	if newUser.About == "" {
+		newUser.About = "-"
+	}
 	//if newUser.Role == common.Professor {
 	//	newUser.DisciplinesOrm = "{"
 	//	for idx, dis := range newUser.Disciplines {
@@ -78,14 +78,14 @@ func (p *pgStorage) CreateUser(newUser models.User) common.Err {
 	//	}
 	//	newUser.DisciplinesOrm += "}"
 	//}
-	//if err := tx.Create(&newUser).Error; err != nil {
-	//	msg := err.Error()
-	//	if common.RecordExists(msg) {
-	//		return common.RespErr{Message: common.UserExistErr, Status: http.StatusConflict}
-	//	}
-	//	return common.RespErr{Message: err.Error(), Status: http.StatusInternalServerError}
-	//}
-	//
+	if err := tx.Create(&newUser).Error; err != nil {
+		msg := err.Error()
+		if common.RecordExists(msg) {
+			return common.RespErr{Message: common.UserExistErr, Status: http.StatusConflict}
+		}
+		return common.RespErr{Message: err.Error(), Status: http.StatusInternalServerError}
+	}
+
 	//if newUser.Role == common.Student {
 	//	group := new(models.Group)
 	//	group.GroupName = newUser.StudentGroup
@@ -104,26 +104,25 @@ func (p *pgStorage) CreateUser(newUser models.User) common.Err {
 	//		return common.RespErr{Message: err.Error(), Status: http.StatusInternalServerError}
 	//	}
 	//}
-	//if err := tx.Commit().Error; err != nil {
-	//	return common.RespErr{Message: err.Error(), Status: http.StatusInternalServerError}
-	//}
+	if err := tx.Commit().Error; err != nil {
+		return common.RespErr{Message: err.Error(), Status: http.StatusInternalServerError}
+	}
 	return nil
 }
 
-func (p *pgStorage) GetUserById(userId uuid.UUID) (*models.User, common.Err) {
-	//userDB := new(models.User)
-	//
-	//userDB.ID = userId
-	//if err := p.db.Take(userDB).Error; err != nil {
-	//	msg := err.Error()
-	//	if common.NoRows(msg) {
-	//		return nil, common.RespErr{Message: common.AuthErr, Status: http.StatusNotFound}
-	//	} else {
-	//		return nil, common.RespErr{Status: http.StatusInternalServerError, Message: msg}
-	//	}
-	//}
-	//return userDB, nil
-	return nil, nil
+func (p *pgStorage) GetUserById(userId int) (*models.User, common.Err) {
+	userDB := new(models.User)
+
+	userDB.ID = userId
+	if err := p.db.Take(userDB).Error; err != nil {
+		msg := err.Error()
+		if common.NoRows(msg) {
+			return nil, common.RespErr{Message: common.AuthErr, Status: http.StatusNotFound}
+		} else {
+			return nil, common.RespErr{Status: http.StatusInternalServerError, Message: msg}
+		}
+	}
+	return userDB, nil
 }
 
 
