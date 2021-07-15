@@ -15,56 +15,66 @@ drop table if exists Timetables cascade;
 drop table if exists Weeks cascade;
 drop table if exists Days cascade;
 drop table if exists Lessons cascade;
+drop table if exists Posts cascade;
 
 drop type if exists users_roles;
 drop type if exists disp_types;
 drop type if exists week_types;
 drop type if exists lessons_types;
+drop type if exists tag_types;
 
 create type users_roles as enum ('admin', 'methodist', 'student', 'professor', 'curator', 'guest');
 create type disp_types as enum ('exam', 'offset', 'diff_offset');
 create type week_types as enum ('numerator', 'denominator');
 create type lessons_types as enum ('seminar', 'lecture', 'lab', 'homework', 'rcontrol', 'consultation', 'exam', 'free');
-
+create type tag_types as enum ('important', 'general', 'education');
 
 create unlogged table Users
 (
-    user_id       uuid default uuid_generate_v4() primary key not null,
-    role          users_roles                                 not null,
-    email         citext,
+    user_id       serial
+        primary key            not null,
+    role          users_roles  not null,
+    email         citext collate "C",
     password_hash bytea,
-    name          varchar(128)                                not null,
-    surname       varchar(128)                                not null,
-    patronymic    varchar(128)                                not null,
+    name          varchar(128) not null,
+    surname       varchar(128) not null,
+    patronymic    varchar(128) not null,
     phone         varchar(18),
     birth_date    date,
-    about         text
+    about         text,
+    avatar_path   varchar(128) default null
 );
 
 create unlogged table Groups
 (
-    group_nmb        int2 primary key                not null,
-    group_elder_id   uuid references Users (user_id) not null, /*Староста*/
-    timetable_id     uuid                            not null, /*Расписание*/
-    group_curator_id uuid references Users (user_id) not null, /*Куратор*/
+    group_nmb        int2 primary key not null,
+    group_elder_id   serial
+        references Users (user_id)    not null, /*Староста*/
+    timetable_id     uuid             not null, /*Расписание*/
+    group_curator_id serial
+        references Users (user_id)    not null, /*Куратор*/
     semester         int2,
     students_cnt     int2
 );
 
 create unlogged table Students
 (
-    user_id        uuid references Users (user_id)    not null,
-    org_curator_id uuid references Users (user_id)    not null,
-    group_nmb      int2 references Groups (group_nmb) not null,
-    admission_date date                               not null,
+    user_id        serial
+        references Users (user_id)    not null,
+    org_curator_id serial
+        references Users (user_id)    not null,
+    group_nmb      int2
+        references Groups (group_nmb) not null,
+    admission_date date               not null,
     is_graduated   bool,
     in_academ      bool
 );
 
 create unlogged table Professors
 (
-    user_id         uuid references Users (user_id) not null,
-    seniority       int2                            not null, /*Стаж, мес.*/
+    user_id         serial
+        references Users (user_id) not null,
+    seniority       int2           not null, /*Стаж, мес.*/
     academic_degree varchar(256), /*Учёная степень*/
     prof_rank       varchar(32), /*Звание*/
     contest_date    date, /*Дата конкурса*/
@@ -78,13 +88,14 @@ create unlogged table Professors
 create unlogged table Competenties
 (
     competention varchar(64) primary key not null,
-    users_ids    uuid[]
+    users_ids    serial[]
 );
 
 create unlogged table DisciplinesMaterials
 (
-    mat_name        varchar(64) primary key                         not null,
-    disc_name       varchar(128) references Disciplines (disc_name) not null,
+    mat_name        varchar(64) primary key not null,
+    disc_name       varchar(128)
+        references Disciplines (disc_name)  not null,
     mat_description text,
     mat_filename    varchar(128),
     mat_cnt         int2
@@ -102,15 +113,17 @@ create unlogged table Disciplines
 
 create unlogged table Organizations
 (
-    org_name       varchar(64) primary key         not null,
-    org_curator_id uuid references Users (user_id) not null,
-    department     varchar(16)                     not null
+    org_name       varchar(64) primary key not null,
+    org_curator_id serial
+        references Users (user_id)         not null,
+    department     varchar(16)             not null
 );
 
 create unlogged table Audiences
 (
-    aud_name            varchar(16) primary key         not null,
-    responsible_user_id uuid references Users (user_id) not null,
+    aud_name            varchar(16) primary key not null,
+    responsible_user_id serial
+        references Users (user_id)              not null,
     is_secret           bool,
     capacity            int2,
     aud_employment      varchar(128),
@@ -119,17 +132,20 @@ create unlogged table Audiences
 
 create unlogged table AudiencesMaterials
 (
-    mat_name        varchar(64) primary key                     not null,
-    aud_name        varchar(16) references Audiences (aud_name) not null,
-    responsible_id  uuid references Users (user_id)             not null,
+    mat_name        varchar(64) primary key not null,
+    aud_name        varchar(16)
+        references Audiences (aud_name)     not null,
+    responsible_id  serial
+        references Users (user_id)          not null,
     mat_description text,
     mat_serial_nmb  varchar(128)
 );
 
 create unlogged table Timetables
 (
-    group_nmb  int2 references Groups (group_nmb) not null,
-    semester   int2                               not null,
+    group_nmb  int2
+        references Groups (group_nmb) not null,
+    semester   int2                   not null,
     weeks_nmbs int2[18]
 );
 
@@ -161,8 +177,41 @@ create unlogged table Days
 
 create unlogged table Lessons
 (
-    lesson_code varchar(6) primary key                          not null,
-    disc_name   varchar(128) references Disciplines (disc_name) not null,
-    aud_name    varchar(16) references Audiences (aud_name)     not null,
-    lesson_type lessons_types                                   not null
+    lesson_code varchar(6) primary key     not null,
+    disc_name   varchar(128)
+        references Disciplines (disc_name) not null,
+    aud_name    varchar(16)
+        references Audiences (aud_name)    not null,
+    lesson_type lessons_types              not null
 );
+
+create unlogged table Posts
+(
+    id       serial primary key,
+    authorId serial
+        references Users (user_id) not null,
+    tag_type tag_types default 'general',
+    content  text                  not null,
+    isEdited bool      default false,
+    created  timestamp             not null
+);
+
+create unlogged table PostComments
+(
+    id       serial primary key,
+    postId   serial
+        references Posts (id)      not null,
+    authorId serial
+        references Users (user_id) not null,
+    parent   int   default 0,
+    message  text                  not null,
+    isEdited bool  default false,
+    created  timestamp             not null,
+    path     int[] default array []::int[]
+);
+
+create unlogged table Likes
+(
+    post_id serial references Posts (id),
+    user_id serial references Users (user_id)
+)
