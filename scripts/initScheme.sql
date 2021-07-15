@@ -88,7 +88,7 @@ create unlogged table Professors
 create unlogged table Competenties
 (
     competention varchar(64) primary key not null,
-    users_ids    serial[]
+    users_ids    int4[]
 );
 
 create unlogged table DisciplinesMaterials

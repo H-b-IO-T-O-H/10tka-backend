@@ -1,7 +1,7 @@
 package models
 
 type Post struct {
-	ID             int +
+	ID             int
 	Role           string    `gorm:"column:role" json:"role"`
 	Email          string    `gorm:"column:email" json:"email"`
 	Phone          string    `gorm:"column:phone" json:"phone"`
