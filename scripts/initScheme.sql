@@ -16,6 +16,8 @@ drop table if exists Weeks cascade;
 drop table if exists Days cascade;
 drop table if exists Lessons cascade;
 drop table if exists Posts cascade;
+drop table if exists PostsComments cascade;
+drop table if exists PostsLikes cascade;
 
 drop type if exists users_roles;
 drop type if exists disp_types;
@@ -87,8 +89,18 @@ create unlogged table Professors
 
 create unlogged table Competenties
 (
-    competention varchar(64) primary key not null,
-    users_ids    int4[]
+    competence varchar(64) primary key not null,
+    users_ids  int4[]
+);
+
+create unlogged table Disciplines
+(
+    disc_name    varchar(128) primary key not null,
+    semester     int2                     not null,
+    is_part_time bool,
+    is_secret    bool,
+    disp_type    disp_types               not null,
+    competencies varchar(64)[]
 );
 
 create unlogged table DisciplinesMaterials
@@ -99,16 +111,6 @@ create unlogged table DisciplinesMaterials
     mat_description text,
     mat_filename    varchar(128),
     mat_cnt         int2
-);
-
-create unlogged table Disciplines
-(
-    disc_name     varchar(128) primary key not null,
-    semester      int2                     not null,
-    is_part_time  bool,
-    is_secret     bool,
-    disp_type     disp_types               not null,
-    competentions varchar(64)[]
 );
 
 create unlogged table Organizations
@@ -149,17 +151,14 @@ create unlogged table Timetables
     weeks_nmbs int2[18]
 );
 
-create unlogged table Weeks
+create unlogged table Lessons
 (
-    week_nmb  int2 primary key                      not null,
-    week_type week_types                            not null,
-    monday    varchar(4) references Days (day_code) not null,
-    tuesday   varchar(4) references Days (day_code) not null,
-    wednesday varchar(4) references Days (day_code) not null,
-    thursday  varchar(4) references Days (day_code) not null,
-    friday    varchar(4) references Days (day_code) not null,
-    saturday  varchar(4) references Days (day_code) not null,
-    sunday    varchar(4) references Days (day_code) not null
+    lesson_code varchar(6) primary key     not null,
+    disc_name   varchar(128)
+        references Disciplines (disc_name) not null,
+    aud_name    varchar(16)
+        references Audiences (aud_name)    not null,
+    lesson_type lessons_types              not null
 );
 
 create unlogged table Days
@@ -175,42 +174,47 @@ create unlogged table Days
     l8_code  varchar(6) references Lessons (lesson_code) not null
 );
 
-create unlogged table Lessons
+create unlogged table Weeks
 (
-    lesson_code varchar(6) primary key     not null,
-    disc_name   varchar(128)
-        references Disciplines (disc_name) not null,
-    aud_name    varchar(16)
-        references Audiences (aud_name)    not null,
-    lesson_type lessons_types              not null
+    week_nmb  int2 primary key                      not null,
+    week_type week_types                            not null,
+    monday    varchar(4) references Days (day_code) not null,
+    tuesday   varchar(4) references Days (day_code) not null,
+    wednesday varchar(4) references Days (day_code) not null,
+    thursday  varchar(4) references Days (day_code) not null,
+    friday    varchar(4) references Days (day_code) not null,
+    saturday  varchar(4) references Days (day_code) not null,
+    sunday    varchar(4) references Days (day_code) not null
 );
 
 create unlogged table Posts
 (
-    id       serial primary key,
-    authorId serial
+    id        serial primary key,
+    author_id serial
         references Users (user_id) not null,
-    tag_type tag_types default 'general',
-    content  text                  not null,
-    isEdited bool      default false,
-    created  timestamp             not null
+    title     varchar(256)         not null,
+    tag_type  tag_types default 'general',
+    content   text                 not null,
+    is_edited bool      default false,
+    created   timestamp            not null,
+    comments  bool      default false
 );
 
-create unlogged table PostComments
+create unlogged table PostsComments
 (
-    id       serial primary key,
-    postId   serial
+    id        serial primary key,
+    post_id   serial
         references Posts (id)      not null,
-    authorId serial
+    author_id serial
         references Users (user_id) not null,
-    parent   int   default 0,
-    message  text                  not null,
-    isEdited bool  default false,
-    created  timestamp             not null,
-    path     int[] default array []::int[]
+    parent    int   default 0,
+    message   text                 not null,
+    is_edited bool  default false,
+    created   timestamp            not null,
+    path      int[] default array []::int[]
 );
 
-create unlogged table Likes
+create unlogged table PostsLikes
 (
     post_id serial references Posts (id),
     user_id serial references Users (user_id)

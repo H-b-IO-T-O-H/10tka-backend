@@ -1,1 +1,1 @@
-psql --host=localhost --dbname=Timetable --username=postgres --file=init.sql
+psql --host=localhost --dbname=Timetable --username=postgres --file=initScheme.sql
