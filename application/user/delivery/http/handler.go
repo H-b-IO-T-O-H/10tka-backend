@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"strconv"
 )
 
 type UserHandler struct {
@@ -17,17 +18,16 @@ type UserHandler struct {
 }
 
 type reqUser struct {
-	Id           string `json:"id"`
-	Role         string    `json:"role" binding:"required"`
-	Password     string    `json:"password"`
-	Name         string    `json:"name" binding:"required"`
-	Surname      string    `json:"surname" binding:"required"`
-	Patronymic   string    `json:"patronymic"`
-	Phone        string    `json:"phone" binding:"required" valid:"phone"`
-	Email        string    `json:"email" binding:"required" valid:"email"`
-	StudentGroup string    `json:"student_group"`
-	Disciplines  []string  `json:"prof_disciplines"`
-	About        string    `json:"about"`
+	Id         int    `json:"id"`
+	Role       string `json:"role" binding:"required"`
+	Password   string `json:"password"`
+	Name       string `json:"name" binding:"required"`
+	Surname    string `json:"surname" binding:"required"`
+	Patronymic string `json:"patronymic"`
+	Phone      string `json:"phone" binding:"required" valid:"phone"`
+	Email      string `json:"email" binding:"required" valid:"email"`
+	BirthDate  string `json:"birth_date"`
+	About      string `json:"about"`
 }
 
 type Resp struct {
@@ -104,7 +104,7 @@ func (u *UserHandler) Login(ctx *gin.Context, newUser models.UserLogin) {
 		})
 	}
 	session.Set(common.UserRole, buf.Role)
-	session.Set(common.UserId, buf.ID.String())
+	session.Set(common.UserId, buf.ID)
 	if err := session.Save(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, common.RespErr{Message: common.SessionErr})
 		return
@@ -151,8 +151,6 @@ func (u *UserHandler) CreateUserHandler(ctx *gin.Context) {
 		Email:        newUser.Email,
 		Phone:        newUser.Phone,
 		PasswordHash: passwordHash,
-		StudentGroup: newUser.StudentGroup,
-		Disciplines:  newUser.Disciplines,
 		About:        newUser.About,
 	}); err != nil {
 		ctx.JSON(err.StatusCode(), err)
@@ -173,7 +171,7 @@ func (u *UserHandler) UpdateUserHandler(ctx *gin.Context) {
 	if newUser.Password != "" {
 		passwordHash, _ = bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 	}
-	id, _ := uuid.Parse(newUser.Id)
+	id := newUser.Id
 
 	if err := u.UserUseCase.UpdateUser(models.User{
 		ID:           id,
@@ -184,8 +182,6 @@ func (u *UserHandler) UpdateUserHandler(ctx *gin.Context) {
 		Email:        newUser.Email,
 		Phone:        newUser.Phone,
 		PasswordHash: passwordHash,
-		StudentGroup: newUser.StudentGroup,
-		Disciplines:  newUser.Disciplines,
 		About:        newUser.About,
 	}); err != nil {
 		ctx.JSON(err.StatusCode(), err)
@@ -208,22 +204,72 @@ func (u *UserHandler) GetCurrentUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, Resp{User: userById})
 }
 
+// GetStudents
+// @Summary GetStudents
+// @Description Returns certain number of student entries if there are start and limit params in the context. Otherwise returns all entries.
+// @Accept  json
+// @Produce  json
+// @Param input body gin.Context.Params false "start and limit"
+// @Success 200 {object} RespList
+// @Router /users/getStudents [post]
 func (u *UserHandler) GetStudents(ctx *gin.Context) {
-	users, err := u.UserUseCase.GetUsersAll(common.Student)
-	if err != nil {
-		ctx.JSON(err.StatusCode(), err)
-		return
-	}
+	if ctx.Params == nil {
+		users, err := u.UserUseCase.GetUsersAll(common.Student)
+		if err != nil {
+			ctx.JSON(err.StatusCode(), err)
+			return
+		}
 
-	ctx.JSON(http.StatusOK, RespList{Users: users})
+		ctx.JSON(http.StatusOK, RespList{Users: users})
+
+	} else {
+		start64, _ := strconv.ParseUint(ctx.Params.ByName("start"), 8,8)
+		start := uint8(start64)
+
+		limit64, _ := strconv.ParseUint(ctx.Params.ByName("limit"), 8,8)
+		limit := uint8(limit64)
+
+		users, err := u.UserUseCase.GetUsers(common.Student, start, limit)
+		if err != nil {
+			ctx.JSON(err.StatusCode(), err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, RespList{Users: users})
+	}
 }
 
-func (u *UserHandler) GetProfessors(ctx *gin.Context) {
-	users, err := u.UserUseCase.GetUsersAll(common.Professor)
-	if err != nil {
-		ctx.JSON(err.StatusCode(), err)
-		return
-	}
 
-	ctx.JSON(http.StatusOK, RespList{Users: users})
+// GetProfessors
+// @Summary GetProfessors
+// @Description Returns certain number of professor entries if there are start and limit params in the context. Otherwise returns all entries.
+// @Accept  json
+// @Produce  json
+// @Param input body gin.Context.Params false "start and limit"
+// @Success 200 {object} RespList
+// @Router /users/getProfessors [post]
+func (u *UserHandler) GetProfessors(ctx *gin.Context) {
+	if ctx.Params == nil {
+		users, err := u.UserUseCase.GetUsersAll(common.Professor)
+		if err != nil {
+			ctx.JSON(err.StatusCode(), err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, RespList{Users: users})
+	} else {
+		start64, _ := strconv.ParseUint(ctx.Params.ByName("start"), 8,8)
+		start := uint8(start64)
+
+		limit64, _ := strconv.ParseUint(ctx.Params.ByName("limit"), 8,8)
+		limit := uint8(limit64)
+
+		users, err := u.UserUseCase.GetUsers(common.Professor, start, limit)
+		if err != nil {
+			ctx.JSON(err.StatusCode(), err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, RespList{Users: users})
+	}
 }
