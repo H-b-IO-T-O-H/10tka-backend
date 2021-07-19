@@ -13,7 +13,7 @@ import (
 )
 
 type PostHandler struct {
-	PostUSeCase    posts.UseCase
+	PostUseCase    posts.UseCase
 	SessionBuilder common.SessionBuilder
 }
 
@@ -22,7 +22,7 @@ type RespImg struct {
 }
 
 func NewRest(router *gin.RouterGroup, useCase posts.UseCase, sessionBuilder common.SessionBuilder, AuthRequired gin.HandlerFunc, isAdminOrMethodist gin.HandlerFunc) *PostHandler {
-	rest := &PostHandler{PostUSeCase: useCase, SessionBuilder: sessionBuilder}
+	rest := &PostHandler{PostUseCase: useCase, SessionBuilder: sessionBuilder}
 	rest.routes(router, AuthRequired, isAdminOrMethodist)
 	return rest
 }
@@ -33,13 +33,15 @@ func (p *PostHandler) routes(router *gin.RouterGroup, AuthRequired gin.HandlerFu
 	router.POST("/", p.CreatePost)
 	router.GET("/:post-id/download-image/:image-name", p.DownloadPostImage)
 	router.GET("/:post-id", p.GetPostById)
+	router.GET("/list", p.GetPosts)
+	router.DELETE("/:post-id", p.DeletePostById)
 	router.Use(AuthRequired)
 	{
 	}
 }
 
 func (p *PostHandler) GetCurrentPostId(ctx *gin.Context) {
-	id, err := p.PostUSeCase.GetCurrentPostId()
+	id, err := p.PostUseCase.GetCurrentPostId()
 	if err != nil {
 		ctx.JSON(err.StatusCode(), err.Msg())
 	}
@@ -86,9 +88,21 @@ func (p *PostHandler) DownloadPostImage(ctx *gin.Context) {
 }
 
 func (p *PostHandler) GetPostById(ctx *gin.Context) {
+	var req struct {
+		PostId int `uri:"post-id" binding:"required"`
+	}
 
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, common.EmptyFieldErr)
+		return
+	}
+	post, err := p.PostUseCase.GetPostById(req.PostId)
+	if err != nil {
+		ctx.JSON(err.StatusCode(), err.Msg())
+		return
+	}
+	ctx.JSON(http.StatusOK, post)
 }
-
 
 func (p *PostHandler) CreatePost(ctx *gin.Context) {
 	var newPost models.Post
@@ -97,11 +111,47 @@ func (p *PostHandler) CreatePost(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, common.RespErr{Message: common.EmptyFieldErr})
 		return
 	}
-	post, err := p.PostUSeCase.CreatePost(newPost)
+	post, err := p.PostUseCase.CreatePost(newPost)
 	if err != nil {
 		ctx.JSON(err.StatusCode(), err.Msg())
 		return
 	}
 
 	ctx.JSON(http.StatusOK, post)
+}
+
+func (p *PostHandler) GetPosts(ctx *gin.Context) {
+	var req struct {
+		Start uint16 `form:"start"`
+		Limit uint16 `form:"limit"`
+	}
+
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, common.EmptyFieldErr)
+		return
+	}
+
+	postsList, err := p.PostUseCase.GetPostsList(req.Start, req.Limit)
+	if err != nil {
+		ctx.JSON(err.StatusCode(), err.Msg())
+		return
+	}
+	ctx.JSON(http.StatusOK, postsList)
+}
+
+func (p *PostHandler) DeletePostById(ctx *gin.Context) {
+	var req struct {
+		PostId int `uri:"post-id" binding:"required"`
+	}
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, common.EmptyFieldErr)
+		return
+	}
+	err := p.PostUseCase.DeletePost(req.PostId)
+	if err != nil {
+		ctx.JSON(err.StatusCode(), err.Msg())
+		return
+	}
+	ctx.JSON(http.StatusOK, nil)
 }

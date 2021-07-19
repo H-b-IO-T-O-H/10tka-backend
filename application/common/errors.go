@@ -48,6 +48,10 @@ func RecordExists(errMsg string) bool {
 	return strings.Contains(errMsg, "duplicate")
 }
 
+func RecordNotFound(errMsg string) bool {
+	return strings.Contains(errMsg, "record not found")
+}
+
 func NoRows(errMsg string) bool {
 	return strings.Contains(errMsg, "no rows")
 }

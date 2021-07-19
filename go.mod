@@ -18,6 +18,7 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/sessions v1.2.1 // indirect
 	github.com/jackc/pgproto3/v2 v2.1.0 // indirect
+	github.com/jackc/pgtype v1.7.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect

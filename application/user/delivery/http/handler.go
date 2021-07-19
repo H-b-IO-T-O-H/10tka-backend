@@ -48,12 +48,14 @@ func (u *UserHandler) routes(router *gin.RouterGroup, AuthRequired gin.HandlerFu
 	router.POST("/login", u.LoginHandler)
 	router.POST("/", u.CreateUserHandler)
 	router.PUT("/", u.UpdateUserHandler)
+	router.GET("/students", u.GetStudents)
+	router.GET("/professors", u.GetProfessors)
 	router.Use(AuthRequired)
 	{
 		router.GET("/me", u.GetCurrentUser)
 		router.POST("/logout", u.LogoutHandler)
-		router.GET("/students", u.GetStudents)
-		router.GET("/professors", u.GetProfessors)
+		//router.GET("/students", u.GetStudents)
+		//router.GET("/professors", u.GetProfessors)
 		//router.Use(isAdminOrMethodist)
 		//{
 		//
@@ -249,6 +251,22 @@ func (u *UserHandler) GetStudents(ctx *gin.Context) {
 // @Success 200 {object} RespList
 // @Router /users/getProfessors [post]
 func (u *UserHandler) GetProfessors(ctx *gin.Context) {
+	var req struct{
+		start uint16 `form:"start"`
+		limit uint16 `form:"limit"`
+	}
+
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, common.EmptyFieldErr)
+		return
+	}
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, common.EmptyFieldErr)
+		return
+	}
+
+
 	if ctx.Params == nil {
 		users, err := u.UserUseCase.GetUsersAll(common.Professor)
 		if err != nil {

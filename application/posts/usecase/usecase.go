@@ -31,7 +31,7 @@ func (p PostUseCase) GetPostById(id int) (*models.Post, common.Err) {
 	return p.repos.GetPostById(id)
 }
 
-func (p PostUseCase) GetPostsList(start int, limit int) ([]models.Post, common.Err) {
+func (p PostUseCase) GetPostsList(start uint16, limit uint16) ([]models.Post, common.Err) {
 	return p.repos.GetPostsList(start, limit)
 }
 
