@@ -28,8 +28,8 @@ type Err interface {
 }
 
 type RespErr struct {
-	Message string `json:"message"`
 	Status  int    `json:"-"`
+	Message string `json:"message"`
 }
 
 func (r RespErr) Msg() string {

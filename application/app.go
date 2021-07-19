@@ -8,6 +8,9 @@ import (
 	DisciplineHandler "github.com/H-b-IO-T-O-H/kts-backend/application/disciplines/delivery/http"
 	DisciplineRepository "github.com/H-b-IO-T-O-H/kts-backend/application/disciplines/repository"
 	DisciplineUseCase "github.com/H-b-IO-T-O-H/kts-backend/application/disciplines/usecase"
+	PostHandler "github.com/H-b-IO-T-O-H/kts-backend/application/posts/delivery/http"
+	PostRepository "github.com/H-b-IO-T-O-H/kts-backend/application/posts/repository"
+	PostUseCase "github.com/H-b-IO-T-O-H/kts-backend/application/posts/usecase"
 	TimetableHandler "github.com/H-b-IO-T-O-H/kts-backend/application/timetable/delivery/http"
 	TimetableRepository "github.com/H-b-IO-T-O-H/kts-backend/application/timetable/repository"
 	TimetableUseCase "github.com/H-b-IO-T-O-H/kts-backend/application/timetable/usecase"
@@ -161,6 +164,10 @@ func NewApp(config Config) *App {
 	DisciplineRep := DisciplineRepository.NewPgRepository(db)
 	DisciplineCase := DisciplineUseCase.NewDisciplineUseCase(DisciplineRep)
 	DisciplineHandler.NewRest(api.Group("/disciplines"), DisciplineCase, &sessionBuilder, common.AuthRequired())
+
+	postRep := PostRepository.NewPgRepository(db)
+	postCase := PostUseCase.NewPostUseCase(postRep)
+	PostHandler.NewRest(api.Group("/posts"), postCase, &sessionBuilder, common.AuthRequired(), common.RoleRequired([]string{common.Admin, common.Methodist}))
 
 	app := App{
 		config:   config,

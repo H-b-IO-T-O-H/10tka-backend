@@ -5,7 +5,7 @@ drop table if exists Users cascade;
 drop table if exists Groups cascade;
 drop table if exists Students cascade;
 drop table if exists Professors cascade;
-drop table if exists Competenties cascade;
+drop table if exists Competencies cascade;
 drop table if exists DisciplinesMaterials cascade;
 drop table if exists Disciplines cascade;
 drop table if exists Organizations cascade;
@@ -87,7 +87,7 @@ create unlogged table Professors
     disciplines     varchar(128)[]
 );
 
-create unlogged table Competenties
+create unlogged table Competencies
 (
     competence varchar(64) primary key not null,
     users_ids  int4[]
@@ -190,8 +190,8 @@ create unlogged table Weeks
 create unlogged table Posts
 (
     id        serial primary key,
-    author_id serial
-        references Users (user_id) not null,
+    author_id int default 1,
+--         references Users (user_id) default 1,
     title     varchar(256)         not null,
     tag_type  tag_types default 'general',
     content   text                 not null,

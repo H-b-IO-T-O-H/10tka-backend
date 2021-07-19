@@ -1,16 +1,14 @@
 package models
 
+import "github.com/go-openapi/strfmt"
+
 type Post struct {
-	ID             int
-	Role           string    `gorm:"column:role" json:"role"`
-	Email          string    `gorm:"column:email" json:"email"`
-	Phone          string    `gorm:"column:phone" json:"phone"`
-	Name           string    `gorm:"column:name" json:"name"`
-	Surname        string    `gorm:"column:surname" json:"surname"`
-	Patronymic     string    `gorm:"column:patronymic" json:"patronymic"`
-	PasswordHash   []byte    `gorm:"column:password_hash" json:"-"`
-	StudentGroup   string    `gorm:"column:student_group" json:"student_group"`
-	Disciplines    []string  `gorm:"-" json:"prof_disciplines"`
-	DisciplinesOrm string    `gorm:"column:prof_disciplines" json:"prof_disciplines_str"`
-	About          string    `gorm:"column:about" json:"about"`
+	PostId   string          `gorm:"column:id" json:"post_id"`
+	AuthorId string          `gorm:"column:author_id" json:"author_id" binding:"required"`
+	TagType  string          `gorm:"column:tag_type" json:"tag_type" binding:"required"`
+	Title    string          `gorm:"column:title" json:"title" binding:"required"`
+	Content  string          `gorm:"column:content" json:"content" binding:"required"`
+	IsEdited bool            `gorm:"column:is_edited" json:"is_edited"`
+	Created  strfmt.DateTime `gorm:"column:created" json:"created"`
+	Comments bool            `gorm:"column:comments" json:"comments"`
 }
