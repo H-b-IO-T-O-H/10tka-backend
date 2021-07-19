@@ -27,9 +27,16 @@ type Err interface {
 	StatusCode() int
 }
 
+type NotFoundErr struct {
+	Message string `json:"message" example:"по данному запросу ничего не нашлось"`
+}
+type BadReqErr struct {
+	Message string `json:"message" example:"обязательные поля не заполнены или содержат недопустимые данные"`
+}
+
 type RespErr struct {
 	Status  int    `json:"-"`
-	Message string `json:"message"`
+	Message string `json:"message" example:"что-то пошло не так. Попробуйте позже"`
 }
 
 func (r RespErr) Msg() string {

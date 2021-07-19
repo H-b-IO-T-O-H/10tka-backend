@@ -40,6 +40,14 @@ func (p *PostHandler) routes(router *gin.RouterGroup, AuthRequired gin.HandlerFu
 	}
 }
 
+// GetCurrentPostId
+// @Summary GetCurrentPostId
+// @Description Returns a free id for post in the database.
+// @Accept  x-www-form-urlencoded
+// @Produce  json
+// @Success 200 {integer} integer
+// @Failure 500 {object} common.RespErr
+// @Router /posts/current-id [get]
 func (p *PostHandler) GetCurrentPostId(ctx *gin.Context) {
 	id, err := p.PostUseCase.GetCurrentPostId()
 	if err != nil {
@@ -87,6 +95,17 @@ func (p *PostHandler) DownloadPostImage(ctx *gin.Context) {
 	ctx.File(targetPath)
 }
 
+// GetPostById
+// @Summary GetPostById
+// @Description Returns a post by proceed id.
+// @Accept  x-www-form-urlencoded
+// @Produce  json
+// @Param post-id path int true "Post Id"
+// @Success 200 {object} models.Post
+// @Failure 400 {object} common.BadReqErr
+// @Failure 404 {object} common.NotFoundErr
+// @Failure 500 {object} common.RespErr
+// @Router /posts/{post-id} [get]
 func (p *PostHandler) GetPostById(ctx *gin.Context) {
 	var req struct {
 		PostId int `uri:"post-id" binding:"required"`
@@ -104,6 +123,23 @@ func (p *PostHandler) GetPostById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, post)
 }
 
+type reqPostCreate = struct {
+	AuthorId int             `json:"author_id" example:"1"`
+	TagType  string          `json:"tag_type" example:"general|important|education"`
+	Title    string          `json:"title" example:"Bla-Bla Post"`
+	Content  string          `json:"content" example:"bla-bla-bla"`
+}
+
+// CreatePost
+// @Summary CreatePost
+// @Description Create post with proceed data.
+// @Accept  json
+// @Produce  json
+// @Param 	data body reqPostCreate true "Post data"
+// @Success 200 {object} models.Post
+// @Failure 400 {object} common.BadReqErr
+// @Failure 500 {object} common.RespErr
+// @Router /posts [post]
 func (p *PostHandler) CreatePost(ctx *gin.Context) {
 	var newPost models.Post
 
@@ -120,6 +156,17 @@ func (p *PostHandler) CreatePost(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, post)
 }
 
+// GetPosts
+// @Summary GetPosts
+// @Description Returns certain number of posts entries if there are start and limit params. Otherwise returns all entries.
+// @Accept  x-www-form-urlencoded
+// @Produce  json
+// @Param  start query int false "start of output of records"
+// @Param  limit query int false "limit of output of records"
+// @Success 200 {array} models.Post
+// @Failure 400 {object} common.BadReqErr
+// @Failure 500 {object} common.RespErr
+// @Router /posts/list [get]
 func (p *PostHandler) GetPosts(ctx *gin.Context) {
 	var req struct {
 		Start uint16 `form:"start"`
@@ -139,6 +186,17 @@ func (p *PostHandler) GetPosts(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, postsList)
 }
 
+// DeletePostById
+// @Summary DeletePost
+// @Description Delete post by proceed id.
+// @Accept  x-www-form-urlencoded
+// @Produce  json
+// @Param post-id path int true "Post Id"
+// @Success 200
+// @Failure 400 {object} common.BadReqErr
+// @Failure 404 {object} common.NotFoundErr
+// @Failure 500 {object} common.RespErr
+// @Router /posts/{post-id} [delete]
 func (p *PostHandler) DeletePostById(ctx *gin.Context) {
 	var req struct {
 		PostId int `uri:"post-id" binding:"required"`

@@ -79,14 +79,14 @@ func (u *UserHandler) LoginHandler(ctx *gin.Context) {
 }
 
 // Login
-// @Summary Login
+// @Summary Login (Disabled)
 // @Description get user by username and password and returns userinfo with cookies
 // @ID get-string-by-int
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} Resp
-// @Failure 404 {object} common.Err
-// @Failure 500 {object} common.Err
+// @Failure 404 {object} common.NotFoundErr
+// @Failure 500 {object} common.RespErr
 // @Router /users/login [post]
 func (u *UserHandler) Login(ctx *gin.Context, newUser models.UserLogin) {
 	buf, err := u.UserUseCase.Login(newUser)
@@ -116,12 +116,12 @@ func (u *UserHandler) Login(ctx *gin.Context, newUser models.UserLogin) {
 }
 
 // LogoutHandler Logout
-// @Summary Logout
+// @Summary Logout  (Disabled)
 // @Description clear user's session
 // @Accept  json
 // @Produce  json
 // @Success 200
-// @Failure 500 {object} common.Err
+// @Failure 500 {object} common.RespErr
 // @Router /users/logout [post]
 func (u *UserHandler) LogoutHandler(ctx *gin.Context) {
 	session := u.SessionBuilder.Build(ctx)
@@ -209,10 +209,12 @@ func (u *UserHandler) GetCurrentUser(ctx *gin.Context) {
 // GetStudents
 // @Summary GetStudents
 // @Description Returns certain number of student entries if there are start and limit params in the context. Otherwise returns all entries.
-// @Accept  json
+// @Accept  x-www-form-urlencoded
 // @Produce  json
-// @Param input body gin.Context.Params false "start and limit"
+// @Param start query int false "start of output of records"
+// @Param limit query int false "limit of output of records"
 // @Success 200 {object} RespList
+// @Failure 500 {object} common.RespErr
 // @Router /users/getStudents [post]
 func (u *UserHandler) GetStudents(ctx *gin.Context) {
 	if ctx.Params == nil {
@@ -225,10 +227,10 @@ func (u *UserHandler) GetStudents(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, RespList{Users: users})
 
 	} else {
-		start64, _ := strconv.ParseUint(ctx.Params.ByName("start"), 8,8)
+		start64, _ := strconv.ParseUint(ctx.Params.ByName("start"), 8, 8)
 		start := uint8(start64)
 
-		limit64, _ := strconv.ParseUint(ctx.Params.ByName("limit"), 8,8)
+		limit64, _ := strconv.ParseUint(ctx.Params.ByName("limit"), 8, 8)
 		limit := uint8(limit64)
 
 		users, err := u.UserUseCase.GetUsers(common.Student, start, limit)
@@ -241,17 +243,19 @@ func (u *UserHandler) GetStudents(ctx *gin.Context) {
 	}
 }
 
-
 // GetProfessors
 // @Summary GetProfessors
 // @Description Returns certain number of professor entries if there are start and limit params in the context. Otherwise returns all entries.
-// @Accept  json
+// @Accept  x-www-form-urlencoded
 // @Produce  json
-// @Param input body gin.Context.Params false "start and limit"
+// @Param  start query int false "start of output of records"
+// @Param  limit query int false "limit of output of records"
 // @Success 200 {object} RespList
+// @Failure 400 {object} common.BadReqErr
+// @Failure 500 {object} common.RespErr
 // @Router /users/getProfessors [post]
 func (u *UserHandler) GetProfessors(ctx *gin.Context) {
-	var req struct{
+	var req struct {
 		start uint16 `form:"start"`
 		limit uint16 `form:"limit"`
 	}
@@ -266,7 +270,6 @@ func (u *UserHandler) GetProfessors(ctx *gin.Context) {
 		return
 	}
 
-
 	if ctx.Params == nil {
 		users, err := u.UserUseCase.GetUsersAll(common.Professor)
 		if err != nil {
@@ -276,10 +279,10 @@ func (u *UserHandler) GetProfessors(ctx *gin.Context) {
 
 		ctx.JSON(http.StatusOK, RespList{Users: users})
 	} else {
-		start64, _ := strconv.ParseUint(ctx.Params.ByName("start"), 8,8)
+		start64, _ := strconv.ParseUint(ctx.Params.ByName("start"), 8, 8)
 		start := uint8(start64)
 
-		limit64, _ := strconv.ParseUint(ctx.Params.ByName("limit"), 8,8)
+		limit64, _ := strconv.ParseUint(ctx.Params.ByName("limit"), 8, 8)
 		limit := uint8(limit64)
 
 		users, err := u.UserUseCase.GetUsers(common.Professor, start, limit)

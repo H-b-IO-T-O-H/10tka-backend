@@ -4,11 +4,305 @@
         "description": "This is a backend server.",
         "title": "10tka API",
         "contact": {},
+        "license": {},
         "version": "1.0"
     },
     "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
+        "/posts": {
+            "post": {
+                "description": "Create post with proceed data.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "CreatePost",
+                "parameters": [
+                    {
+                        "description": "Post data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.reqPostCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Post"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BadReqErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.RespErr"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/current-id": {
+            "get": {
+                "description": "Returns a free id for post in the database.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GetCurrentPostId",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.RespErr"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/list": {
+            "get": {
+                "description": "Returns certain number of posts entries if there are start and limit params. Otherwise returns all entries.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GetPosts",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "start of output of records",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit of output of records",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Post"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BadReqErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.RespErr"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{post-id}": {
+            "get": {
+                "description": "Returns a post by proceed id.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GetPostById",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post Id",
+                        "name": "post-id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Post"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BadReqErr"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/common.NotFoundErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.RespErr"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete post by proceed id.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "DeletePost",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Post Id",
+                        "name": "post-id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BadReqErr"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/common.NotFoundErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.RespErr"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/getProfessors": {
+            "post": {
+                "description": "Returns certain number of professor entries if there are start and limit params in the context. Otherwise returns all entries.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GetProfessors",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "start of output of records",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit of output of records",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/http.RespList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.BadReqErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.RespErr"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/getStudents": {
+            "post": {
+                "description": "Returns certain number of student entries if there are start and limit params in the context. Otherwise returns all entries.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GetStudents",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "start of output of records",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit of output of records",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/http.RespList"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.RespErr"
+                        }
+                    }
+                }
+            }
+        },
         "/users/login": {
             "post": {
                 "description": "get user by username and password and returns userinfo with cookies",
@@ -30,13 +324,13 @@
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/common.Err"
+                            "$ref": "#/definitions/common.NotFoundErr"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/common.Err"
+                            "$ref": "#/definitions/common.RespErr"
                         }
                     }
                 }
@@ -59,7 +353,7 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/common.Err"
+                            "$ref": "#/definitions/common.RespErr"
                         }
                     }
                 }
@@ -67,14 +361,106 @@
         }
     },
     "definitions": {
-        "common.Err": {
-            "type": "object"
+        "common.BadReqErr": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "обязательные поля не заполнены или содержат недопустимые данные"
+                }
+            }
+        },
+        "common.NotFoundErr": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "по данному запросу ничего не нашлось"
+                }
+            }
+        },
+        "common.RespErr": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "что-то пошло не так. Попробуйте позже"
+                }
+            }
         },
         "http.Resp": {
             "type": "object",
             "properties": {
                 "user": {
+                    "type": "object",
                     "$ref": "#/definitions/models.User"
+                }
+            }
+        },
+        "http.RespList": {
+            "type": "object",
+            "properties": {
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                }
+            }
+        },
+        "http.reqPostCreate": {
+            "type": "object",
+            "properties": {
+                "author_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "content": {
+                    "type": "string",
+                    "example": "bla-bla-bla"
+                },
+                "tag_type": {
+                    "type": "string",
+                    "example": "general|important|education"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Bla-Bla Post"
+                }
+            }
+        },
+        "models.Post": {
+            "type": "object",
+            "required": [
+                "author_id",
+                "content",
+                "tag_type",
+                "title"
+            ],
+            "properties": {
+                "author_id": {
+                    "type": "integer"
+                },
+                "comments": {
+                    "type": "boolean"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string"
+                },
+                "is_edited": {
+                    "type": "boolean"
+                },
+                "post_id": {
+                    "type": "integer"
+                },
+                "tag_type": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         },
@@ -84,11 +470,14 @@
                 "about": {
                     "type": "string"
                 },
+                "birth_date": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -99,19 +488,7 @@
                 "phone": {
                     "type": "string"
                 },
-                "prof_disciplines": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "prof_disciplines_str": {
-                    "type": "string"
-                },
                 "role": {
-                    "type": "string"
-                },
-                "student_group": {
                     "type": "string"
                 },
                 "surname": {
