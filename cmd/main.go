@@ -19,7 +19,7 @@ var needLog = flag.Bool("log", false, "Enable IO logging")
 // @version 1.0
 // @description This is a backend server.
 
-// @host localhost:8080
+// @host 10-tka.ru
 // @BasePath /api/v1
 // @query.collection.format multi
 
