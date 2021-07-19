@@ -91,7 +91,7 @@ definitions:
       surname:
         type: string
     type: object
-host: localhost:8080
+host: 10-tka.ru
 info:
   contact: {}
   description: This is a backend server.
@@ -315,7 +315,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/common.RespErr'
-      summary: Login
+      summary: Login (Disabled)
   /users/logout:
     post:
       consumes:
@@ -330,5 +330,5 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/common.RespErr'
-      summary: Logout
+      summary: Logout  (Disabled)
 swagger: "2.0"

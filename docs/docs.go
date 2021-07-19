@@ -327,7 +327,7 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Login",
+                "summary": "Login (Disabled)",
                 "operationId": "get-string-by-int",
                 "responses": {
                     "200": {
@@ -360,7 +360,7 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Logout",
+                "summary": "Logout  (Disabled)",
                 "responses": {
                     "200": {
                         "description": ""
@@ -526,7 +526,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
-	Host:        "localhost:8080",
+	Host:        "10-tka.ru",
 	BasePath:    "/api/v1",
 	Schemes:     []string{},
 	Title:       "10tka API",
