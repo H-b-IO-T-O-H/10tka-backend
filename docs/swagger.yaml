@@ -1,0 +1,334 @@
+basePath: /api/v1
+definitions:
+  common.BadReqErr:
+    properties:
+      message:
+        example: обязательные поля не заполнены или содержат недопустимые данные
+        type: string
+    type: object
+  common.NotFoundErr:
+    properties:
+      message:
+        example: по данному запросу ничего не нашлось
+        type: string
+    type: object
+  common.RespErr:
+    properties:
+      message:
+        example: что-то пошло не так. Попробуйте позже
+        type: string
+    type: object
+  http.Resp:
+    properties:
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+    type: object
+  http.RespList:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
+  http.reqPostCreate:
+    properties:
+      author_id:
+        example: 1
+        type: integer
+      content:
+        example: bla-bla-bla
+        type: string
+      tag_type:
+        example: general|important|education
+        type: string
+      title:
+        example: Bla-Bla Post
+        type: string
+    type: object
+  models.Post:
+    properties:
+      author_id:
+        type: integer
+      comments:
+        type: boolean
+      content:
+        type: string
+      created:
+        type: string
+      is_edited:
+        type: boolean
+      post_id:
+        type: integer
+      tag_type:
+        type: string
+      title:
+        type: string
+    required:
+    - author_id
+    - content
+    - tag_type
+    - title
+    type: object
+  models.User:
+    properties:
+      about:
+        type: string
+      birth_date:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      patronymic:
+        type: string
+      phone:
+        type: string
+      role:
+        type: string
+      surname:
+        type: string
+    type: object
+host: 10-tka.ru
+info:
+  contact: {}
+  description: This is a backend server.
+  license: {}
+  title: 10tka API
+  version: "1.0"
+paths:
+  /posts:
+    post:
+      consumes:
+      - application/json
+      description: Create post with proceed data.
+      parameters:
+      - description: Post data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/http.reqPostCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BadReqErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.RespErr'
+      summary: CreatePost
+  /posts/{post-id}:
+    delete:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Delete post by proceed id.
+      parameters:
+      - description: Post Id
+        in: path
+        name: post-id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BadReqErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.NotFoundErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.RespErr'
+      summary: DeletePost
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Returns a post by proceed id.
+      parameters:
+      - description: Post Id
+        in: path
+        name: post-id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BadReqErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.NotFoundErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.RespErr'
+      summary: GetPostById
+  /posts/current-id:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Returns a free id for post in the database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.RespErr'
+      summary: GetCurrentPostId
+  /posts/list:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Returns certain number of posts entries if there are start and
+        limit params. Otherwise returns all entries.
+      parameters:
+      - description: start of output of records
+        in: query
+        name: start
+        type: integer
+      - description: limit of output of records
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Post'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BadReqErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.RespErr'
+      summary: GetPosts
+  /users/getProfessors:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Returns certain number of professor entries if there are start
+        and limit params in the context. Otherwise returns all entries.
+      parameters:
+      - description: start of output of records
+        in: query
+        name: start
+        type: integer
+      - description: limit of output of records
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http.RespList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BadReqErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.RespErr'
+      summary: GetProfessors
+  /users/getStudents:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Returns certain number of student entries if there are start and
+        limit params in the context. Otherwise returns all entries.
+      parameters:
+      - description: start of output of records
+        in: query
+        name: start
+        type: integer
+      - description: limit of output of records
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http.RespList'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.RespErr'
+      summary: GetStudents
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: get user by username and password and returns userinfo with cookies
+      operationId: get-string-by-int
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http.Resp'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.NotFoundErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.RespErr'
+      summary: Login (Disabled)
+  /users/logout:
+    post:
+      consumes:
+      - application/json
+      description: clear user's session
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.RespErr'
+      summary: Logout  (Disabled)
+swagger: "2.0"
