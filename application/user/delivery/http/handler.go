@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
-	"strconv"
 )
 
 type UserHandler struct {
@@ -217,30 +216,27 @@ func (u *UserHandler) GetCurrentUser(ctx *gin.Context) {
 // @Failure 500 {object} common.RespErr
 // @Router /users/getStudents [post]
 func (u *UserHandler) GetStudents(ctx *gin.Context) {
-	if ctx.Params == nil {
-		users, err := u.UserUseCase.GetUsersAll(common.Student)
-		if err != nil {
-			ctx.JSON(err.StatusCode(), err)
-			return
-		}
-
-		ctx.JSON(http.StatusOK, RespList{Users: users})
-
-	} else {
-		start64, _ := strconv.ParseUint(ctx.Params.ByName("start"), 8, 8)
-		start := uint8(start64)
-
-		limit64, _ := strconv.ParseUint(ctx.Params.ByName("limit"), 8, 8)
-		limit := uint8(limit64)
-
-		users, err := u.UserUseCase.GetUsers(common.Student, start, limit)
-		if err != nil {
-			ctx.JSON(err.StatusCode(), err)
-			return
-		}
-
-		ctx.JSON(http.StatusOK, RespList{Users: users})
+	var req struct {
+		Start uint8 `form:"start"`
+		Limit uint8 `form:"limit"`
 	}
+
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, common.EmptyFieldErr)
+		return
+	}
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, common.EmptyFieldErr)
+		return
+	}
+
+	users, err := u.UserUseCase.GetUsers(common.Student, req.Start, req.Limit)
+	if err != nil {
+		ctx.JSON(err.StatusCode(), err)
+		return
+	}
+	ctx.JSON(http.StatusOK, RespList{Users: users})
 }
 
 // GetProfessors
@@ -256,8 +252,8 @@ func (u *UserHandler) GetStudents(ctx *gin.Context) {
 // @Router /users/getProfessors [post]
 func (u *UserHandler) GetProfessors(ctx *gin.Context) {
 	var req struct {
-		start uint16 `form:"start"`
-		limit uint16 `form:"limit"`
+		Start uint8 `form:"start"`
+		Limit uint8 `form:"limit"`
 	}
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -270,27 +266,11 @@ func (u *UserHandler) GetProfessors(ctx *gin.Context) {
 		return
 	}
 
-	if ctx.Params == nil {
-		users, err := u.UserUseCase.GetUsersAll(common.Professor)
-		if err != nil {
-			ctx.JSON(err.StatusCode(), err)
-			return
-		}
-
-		ctx.JSON(http.StatusOK, RespList{Users: users})
-	} else {
-		start64, _ := strconv.ParseUint(ctx.Params.ByName("start"), 8, 8)
-		start := uint8(start64)
-
-		limit64, _ := strconv.ParseUint(ctx.Params.ByName("limit"), 8, 8)
-		limit := uint8(limit64)
-
-		users, err := u.UserUseCase.GetUsers(common.Professor, start, limit)
-		if err != nil {
-			ctx.JSON(err.StatusCode(), err)
-			return
-		}
-
-		ctx.JSON(http.StatusOK, RespList{Users: users})
+	users, err := u.UserUseCase.GetUsers(common.Professor, req.Start, req.Limit)
+	if err != nil {
+		ctx.JSON(err.StatusCode(), err)
+		return
 	}
+	ctx.JSON(http.StatusOK, RespList{Users: users})
+
 }
